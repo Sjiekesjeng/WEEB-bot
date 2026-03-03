@@ -1,5 +1,7 @@
-## Worldwide Electronic Entertainment Buffering Bot
-## "WEEB-bot"
+# WEEB-bot
+## (Worldwide Electronic Entertainment Buffering Bot)
+
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 
 WEEB-bot is a Python automation tool that monitors your anime download list, searches [Nyaa.si](https://nyaa.si) for the next episode of each series you follow, and automatically adds the magnet link to your qBittorrent download queue, all without any manual input.
 
