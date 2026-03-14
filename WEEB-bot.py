@@ -450,7 +450,7 @@ def add_magnet_and_confirm(client: Any, magnet_link: str, category: Optional[str
 
 
 # ---------- Excel updates ----------
-def log_and_update_excel(path: str, entry: Dict[str, Any], series_name: str, new_number: int) -> None:
+def log_and_update_excel(path: str, entry: Dict[str, Any], series_name: str, new_number: int, row_index: int) -> None:
     """
     Write a log entry to Download_Log AND update CurrentFileNumber in Parameters_Series
     in a single workbook open/save operation.
@@ -481,18 +481,13 @@ def log_and_update_excel(path: str, entry: Dict[str, Any], series_name: str, new
         ws_params = wb[TAB_PARAMS]
         headers   = [_strip_value(c.value) for c in list(ws_params.rows)[0]]
         try:
-            idx_name = headers.index("SeriesName")
             idx_cur  = headers.index("CurrentFileNumber")
-            found    = False
-            for row in ws_params.iter_rows(min_row=2):
-                if row[idx_name].value == series_name:
-                    row[idx_cur].value = new_number
-                    found = True
-                    break
-            if not found:
-                print(f"  WARNING: Could not find '{series_name}' in '{TAB_PARAMS}' to update CurrentFileNumber.")
+            # Use row_index directly — no loop, no ambiguity when multiple rows
+            # share the same SeriesName (e.g. same series, different publishers).
+            # row_index is 1-based and already accounts for the header row.
+            ws_params.cell(row=row_index, column=idx_cur + 1).value = new_number
         except ValueError:
-            print(f"  WARNING: Could not find 'SeriesName' or 'CurrentFileNumber' column in '{TAB_PARAMS}'.")
+            print(f"  WARNING: Could not find 'CurrentFileNumber' column in '{TAB_PARAMS}'.")
     else:
         print(f"  WARNING: Sheet '{TAB_PARAMS}' not found when trying to update CurrentFileNumber.")
 
@@ -612,7 +607,8 @@ def main() -> None:
                     "Notes":              ""
                 },
                 series_name=name,
-                new_number=target_num
+                new_number=target_num,
+                row_index=s["RowIndex"]
             )
             print(f"  Successfully queued and logged '{name}' #{target_num}.")
 
